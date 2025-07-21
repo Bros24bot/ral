@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <title>Rally Overlay</title>
+  <style>
+    body {
+      background-color: black;
+      color: white;
+      font-family: sans-serif;
+      font-size: 20px;
+      padding: 20px;
+    }
+    .start-now {
+      color: lightgreen;
+      font-weight: bold;
+    }
+    ul {
+      list-style: none;
+      padding-left: 0;
+    }
+    li {
+      margin-bottom: 8px;
+    }
+  </style>
+</head>
+<body>
+  <h2 id="utc">🕒 UTC: loading...</h2>
+  <ul id="list"></ul>
+
+  <script>
+    async function updateOverlay() {
+      try {
+        const res = await fetch("https://bros24bot.github.io/rally-data/rally_overlay.json", { cache: "no-store" });
+        const data = await res.json();
+        document.getElementById("utc").innerText = "🕒 UTC: " + data.utc;
+
+        const now = new Date();
+        const items = data.players.map(([name, timeStr]) => {
+          const [h, m, s] = timeStr.split(":").map(Number);
+          const target = new Date(now);
+          target.setUTCHours(h, m, s, 0);
+          let diff = Math.floor((target - now) / 1000);
+          if (diff < 0) diff = 0;
+          const msg = diff === 0 ? `✅ Start now!` : `Start in ${diff}s`;
+          const cls = diff === 0 ? "start-now" : "";
+          return `<li class="${cls}">${name} – ${msg}</li>`;
+        });
+
+        document.getElementById("list").innerHTML = items.join("");
+      } catch (e) {
+        document.getElementById("list").innerHTML = `<li>❌ Fehler beim Laden der Rally-Daten</li>`;
+      }
+    }
+
+    setInterval(updateOverlay, 1000);
+    updateOverlay();
+  </script>
+</body>
+</html>
