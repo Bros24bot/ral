@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
   <title>Rally Overlay</title>
   <style>
     body {
@@ -33,8 +33,10 @@
   <script>
     async function updateOverlay() {
       try {
-        const res = await fetch("https://bros24bot.github.io/rally-data/rally_overlay.json", { cache: "no-store" });
+        const res = await fetch("rally_overlay.json", { cache: "no-store" });
         const data = await res.json();
+
+        // Anzeige der UTC-Zeit aus der JSON-Datei
         document.getElementById("utc").innerText = "🕒 UTC: " + data.utc;
 
         const now = new Date();
@@ -44,14 +46,18 @@
           target.setUTCHours(h, m, s, 0);
           let diff = Math.floor((target - now) / 1000);
           if (diff < 0) diff = 0;
+
           const msg = diff === 0 ? `✅ Start now!` : `Start in ${diff}s`;
           const cls = diff === 0 ? "start-now" : "";
+
           return `<li class="${cls}">${name} – ${msg}</li>`;
         });
 
         document.getElementById("list").innerHTML = items.join("");
       } catch (e) {
-        document.getElementById("list").innerHTML = `<li>❌ Fehler beim Laden der Rally-Daten</li>`;
+        document.getElementById("list").innerHTML =
+          `<li>❌ Fehler beim Laden der Rally-Daten</li>`;
+        document.getElementById("utc").innerText = "🕒 UTC: –";
       }
     }
 
